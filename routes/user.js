@@ -4,8 +4,8 @@ const auth = require("../middlewares/auth");
 const Order = require("../models/order");
 const { Product } = require("../models/product");
 const User = require("../models/user");
-const WishList = require("../models/wishlist");
 
+// cart resources
 userRouter.post("/api/add-to-cart", auth, async (req, res) => {
   try {
     const { id } = req.body;
@@ -51,6 +51,43 @@ userRouter.delete("/api/remove-from-cart/:id", auth, async (req, res) => {
         } else {
           user.cart[i].quantity -= 1;
         }
+      }
+    }
+    user = await user.save();
+    res.json(user);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//wishlist resources
+
+userRouter.post("/api/add-to-wishlist", auth, async (req, res) => {
+  try {
+    //destructure the product id from request body
+    const { id } = req.body;
+    //find product in database with id
+    const product = await Product.findById(id);
+    //fetch db user from the request
+    let user = await User.findById(req.user);
+    //if wishlist is empty we just add the product
+    if (user.WishList.length == 0) {
+      user.WishList.push({ product });
+    } else {
+      //
+      let isProductFound = false;
+      for (let i = 0; i < user.WishList.length; i++) {
+        if (user.WishList[i].product._id.equals(product._id)) {
+          isProductFound = true;
+        }
+      }
+
+      if (isProductFound) {
+        let producttt = user.WishList.find((wishlist) =>
+          wishlist.product._id.equals(product._id)
+        );
+      } else {
+        user.cart.push({ product });
       }
     }
     user = await user.save();
@@ -118,23 +155,6 @@ userRouter.get("/api/orders/me", auth, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user });
     res.json(orders);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-userRouter.post("/api/wishlist/me", auth, async (req, res) => {
-  try {
-    const { products, totalAmount } = req.body;
-
-    let wishlist = new WishList({
-      products: products,
-      totalAmount: totalAmount,
-      userId: req.user,
-      addedAt: new Date().getTime(),
-    });
-    wishlist = await wishlist.save();
-    res.json(wishlist);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
