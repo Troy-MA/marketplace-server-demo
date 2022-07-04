@@ -67,17 +67,19 @@ userRouter.post("/api/add-to-wishlist", auth, async (req, res) => {
     //destructure the product id from request body
     const { id } = req.body;
     //find product in database with id
-    const product = await Product.findById(id);
+    const product = await Product.findById(`${id}`);
+    console.log(product);
     //fetch db user from the request
     let user = await User.findById(req.user);
+    console.log(user);
     //if wishlist is empty we just add the product
-    if (user.WishList.length == 0) {
-      user.WishList.push({ product });
+    if (user.wishlist.length == 0) {
+      user.wishlist.push({ product });
     } else {
       //
       let isProductFound = false;
-      for (let i = 0; i < user.WishList.length; i++) {
-        if (user.WishList[i].product._id.equals(product._id)) {
+      for (let i = 0; i < user.wishlist.length; i++) {
+        if (user.wishlist[i].product._id.equals(product._id)) {
           isProductFound = true;
         }
       }
@@ -85,7 +87,7 @@ userRouter.post("/api/add-to-wishlist", auth, async (req, res) => {
       if (isProductFound) {
         return res.status(400).json({ msg: "You Already added this item" });
       } else {
-        user.cart.push({ product });
+        user.wishlist.push({ product });
       }
     }
     user = await user.save();
