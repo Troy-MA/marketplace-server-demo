@@ -44,7 +44,6 @@ const userSchema = mongoose.Schema({
   wishlist: [
     {
       product: productSchema,
-      
     },
   ],
 });

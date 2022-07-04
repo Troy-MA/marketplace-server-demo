@@ -11,7 +11,7 @@ const userRouter = require("./routes/user");
 const PORT = process.env.PORT || 3000;
 const app = express();
 const DB =
-  "mongodb+srv://cluster009:sFuyFfC0TBZg94Xb@cluster0.oukyvkw.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://Troy-MA-GF:P3dioMYMQV8VGLgs@goldenfleece.nr5xumy.mongodb.net/?retryWrites=true&w=majority";
 
 // middleware
 app.use(express.json());
@@ -20,7 +20,7 @@ app.use(adminRouter);
 app.use(productRouter);
 app.use(userRouter);
 //ip config
-var os = require('os');
+var os = require("os");
 
 var networkInterfaces = os.networkInterfaces();
 

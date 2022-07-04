@@ -83,9 +83,7 @@ userRouter.post("/api/add-to-wishlist", auth, async (req, res) => {
       }
 
       if (isProductFound) {
-        let producttt = user.WishList.find((wishlist) =>
-          wishlist.product._id.equals(product._id)
-        );
+        return res.status(400).json({ msg: "You Already added this item" });
       } else {
         user.cart.push({ product });
       }
