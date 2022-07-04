@@ -4,6 +4,7 @@ const auth = require("../middlewares/auth");
 const Order = require("../models/order");
 const { Product } = require("../models/product");
 const User = require("../models/user");
+const WishList = require("../models/wishlist");
 
 userRouter.post("/api/add-to-cart", auth, async (req, res) => {
   try {
@@ -75,11 +76,15 @@ userRouter.post("/api/save-user-address", auth, async (req, res) => {
 // order product
 userRouter.post("/api/order", auth, async (req, res) => {
   try {
+    //destructure request body to get the cart, address and total price
     const { cart, totalPrice, address } = req.body;
+    //create a new list of empty products
     let products = [];
-
+    //iterating over the length of the cart to access each index with i
     for (let i = 0; i < cart.length; i++) {
+      //getting all the products in the dataabase which have the same id as the cart product
       let product = await Product.findById(cart[i].product._id);
+
       if (product.quantity >= cart[i].quantity) {
         product.quantity -= cart[i].quantity;
         products.push({ product, quantity: cart[i].quantity });
@@ -113,6 +118,23 @@ userRouter.get("/api/orders/me", auth, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user });
     res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+userRouter.post("/api/wishlist/me", auth, async (req, res) => {
+  try {
+    const { products, totalAmount } = req.body;
+
+    let wishlist = new WishList({
+      products: products,
+      totalAmount: totalAmount,
+      userId: req.user,
+      addedAt: new Date().getTime(),
+    });
+    wishlist = await wishlist.save();
+    res.json(wishlist);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
