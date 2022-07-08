@@ -66,6 +66,7 @@ userRouter.post("/api/add-to-wishlist", auth, async (req, res) => {
   try {
     //destructure the product id from request body
     const { id } = req.body;
+
     //find product in database with id
     const product = await Product.findById(`${id}`);
     console.log(product);
@@ -88,6 +89,26 @@ userRouter.post("/api/add-to-wishlist", auth, async (req, res) => {
         return res.status(400).json({ msg: "You Already added this item" });
       } else {
         user.wishlist.push({ product });
+      }
+    }
+    user = await user.save();
+    res.json(user);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+//delete item from wihslist
+userRouter.delete("/api/remove-from-wishlist/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    console.log(product);
+    let user = await User.findById(req.user);
+
+    for (let i = 0; i < user.wishlist.length; i++) {
+      if (user.wishlist[i].product._id.equals(product._id)) {
+        user.wishlist.splice(i, 1);
       }
     }
     user = await user.save();
